@@ -1,25 +1,43 @@
-const timeTracker: { lastTime: Date | null } = { lastTime: null };
+type Event = 'ONE' | 'TWO' | 'THREE';
 
-export const hasBeenEnoughTime = (enoughTime: number) => { // milliseconds
+interface ITimeTracker {
+	lastTime: Date | null;
+}
+
+const defaultTimeTracker: ITimeTracker = { lastTime: null };
+
+type TimeForEvent = {
+	[event in Event]: ITimeTracker;
+};
+
+const timeTracker: TimeForEvent = {
+	ONE: defaultTimeTracker,
+	TWO: defaultTimeTracker,
+	THREE: defaultTimeTracker
+};
+
+export const hasBeenEnoughTime = (enoughTime: number, event: Event) => {
 	const now = new Date();
 
-	if (!timeTracker.lastTime) {
-		timeTracker.lastTime = now;
+	const tracker = timeTracker[event];
+
+	if (tracker.lastTime == null || enoughTime == 0) {
+		tracker.lastTime = now;
 		return true;
 	}
 
 	const timeDifference =
-		now.getTime() - timeTracker.lastTime.getTime() >= enoughTime;
+		now.getTime() - tracker.lastTime.getTime() > enoughTime;
 
 	if (!timeDifference) {
 		return false;
 	}
 
-	timeTracker.lastTime = now;
+	tracker.lastTime = now;
 
 	return true;
 };
 
-export const getLastTime = () => {
-	return timeTracker.lastTime;
+export const getLastTime = (event: Event) => {
+	return timeTracker[event].lastTime;
 };
